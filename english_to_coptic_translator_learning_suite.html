@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English to Coptic Translator & Learning Suite</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts for Coptic & Styling -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Coptic&family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        coptic: {
+                            gold: '#D4AF37',
+                            darkGold: '#AA820A',
+                            bronze: '#8C6239',
+                            papyrus: '#F9F6EE',
+                            papyrusCard: '#F0EAD6',
+                            slateDark: '#121824',
+                            slateCard: '#1A2332',
+                            redAccent: '#900C3F',
+                            blueAccent: '#1B4965'
+                        }
+                    },
+                    fontFamily: {
+                        coptic: ['"Noto Sans Coptic"', '"Segoe UI Symbol"', 'sans-serif'],
+                        title: ['Cinzel', 'serif'],
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .coptic-text {
+            font-family: 'Noto Sans Coptic', 'Segoe UI Symbol', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #D4AF37;
+            border-radius: 4px;
+        }
+        .papyrus-texture {
+            background-color: #F9F6EE;
+            background-image: radial-gradient(#E8DFCA 0.75px, transparent 0.75px);
+            background-size: 16px 16px;
+        }
+        .dark .papyrus-texture {
+            background-color: #0F141C;
+            background-image: radial-gradient(#1E293B 0.75px, transparent 0.75px);
+            background-size: 16px 16px;
+        }
+    </style>
+</head>
+<body class="papyrus-texture text-gray-900 dark:text-gray-100 min-h-screen flex flex-col font-sans transition-colors duration-300">
+
+    <header class="sticky top-0 z-50 bg-white/90 dark:bg-coptic-slateDark/90 backdrop-blur-md border-b border-coptic-gold/30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo / Title -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-coptic-gold to-yellow-600 flex items-center justify-center text-white shadow-md text-2xl font-bold border-2 border-white dark:border-gray-800">
+                        ⲁⲱ
+                    </div>
+                    <div>
+                        <h1 class="font-title font-bold text-xl sm:text-2xl text-coptic-darkGold dark:text-coptic-gold tracking-wide">
+                            ⲡⲓⲥⲁϧⲟ <span class="text-xs uppercase tracking-widest text-coptic-redAccent dark:text-yellow-500 font-sans block sm:inline sm:ml-2">Coptic Suite</span>
+                        </h1>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">English ⇄ Bohairic Coptic Translator & Dictionary</p>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation Tabs -->
+                <nav class="hidden md:flex space-x-1 lg:space-x-2 bg-gray-100 dark:bg-coptic-slateCard p-1.5 rounded-xl border border-gray-200 dark:border-gray-700">
+                    <button onclick="switchTab('translator')" id="tab-translator" class="tab-btn active px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center space-x-2 bg-coptic-gold text-white shadow-sm">
+                        <i class="fa-solid font-bold fa-language"></i>
+                        <span>Translator</span>
+                    </button>
+                    <button onclick="switchTab('dictionary')" id="tab-dictionary" class="tab-btn px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-coptic-gold">
+                        <i class="fa-solid fa-book-bible"></i>
+                        <span>Dictionary</span>
+                    </button>
+                    <button onclick="switchTab('alphabet')" id="tab-alphabet" class="tab-btn px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-coptic-gold">
+                        <i class="fa-solid fa-font"></i>
+                        <span>Alphabet</span>
+                    </button>
+                    <button onclick="switchTab('flashcards')" id="tab-flashcards" class="tab-btn px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-coptic-gold">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        <span>Flashcards</span>
+                    </button>
+                </nav>
+
+                <!-- Actions: Theme Switcher & Toast Message Container -->
+                <div class="flex items-center space-x-3">
+                    <button onclick="toggleDarkMode()" class="p-2.5 rounded-full bg-gray-100 dark:bg-coptic-slateCard text-gray-600 dark:text-gray-300 hover:text-coptic-gold transition-colors focus:outline-none" title="Toggle Theme">
+                        <i id="theme-icon" class="fa-solid fa-moon text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Tab Bar -->
+        <div class="md:hidden flex justify-around bg-gray-50 dark:bg-coptic-slateCard border-t border-gray-200 dark:border-gray-800 p-2">
+            <button onclick="switchTab('translator')" id="mobile-tab-translator" class="flex flex-col items-center py-1 px-3 text-xs font-semibold text-coptic-gold">
+                <i class="fa-solid fa-language text-base mb-0.5"></i>
+                <span>Translate</span>
+            </button>
+            <button onclick="switchTab('dictionary')" id="mobile-tab-dictionary" class="flex flex-col items-center py-1 px-3 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                <i class="fa-solid fa-book-bible text-base mb-0.5"></i>
+                <span>Dictionary</span>
+            </button>
+            <button onclick="switchTab('alphabet')" id="mobile-tab-alphabet" class="flex flex-col items-center py-1 px-3 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                <i class="fa-solid fa-font text-base mb-0.5"></i>
+                <span>Alphabet</span>
+            </button>
+            <button onclick="switchTab('flashcards')" id="mobile-tab-flashcards" class="flex flex-col items-center py-1 px-3 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                <i class="fa-solid fa-graduation-cap text-base mb-0.5"></i>
+                <span>Learn</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-gray-900 text-white dark:bg-coptic-gold dark:text-gray-900 px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3 pointer-events-none">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-lg"></i>
+        <span id="toast-message" class="text-sm font-semibold">Message copied to clipboard!</span>
+    </div>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- TAB 1: TRANSLATOR & CONVERTER -->
+        <section id="view-translator" class="tab-view block space-y-6">
+            <!-- Header Banner -->
+            <div class="bg-gradient-to-r from-coptic-blueAccent to-coptic-slateCard rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-10 opacity-10 text-9xl font-coptic select-none pointer-events-none">
+                    ϯⲙⲉⲑⲣⲉⲙⲛⲭⲏⲙⲓ
+                </div>
+                <div class="relative z-10 max-w-2xl">
+                    <span class="inline-block px-3 py-1 bg-coptic-gold/20 text-coptic-gold text-xs font-bold rounded-full mb-2 uppercase tracking-wider border border-coptic-gold/30">Bohairic Dialect Engine</span>
+                    <h2 class="text-2xl sm:text-3xl font-title font-bold text-yellow-100">English to Coptic Converter</h2>
+                    <p class="text-sm text-gray-300 mt-1">Converts English words using real-time phrase matching, direct dictionary lookup, and intelligent phonetical transliteration.</p>
+                </div>
+            </div>
+
+            <!-- Translation Workspace Box -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Input Box (English) -->
+                <div class="bg-white dark:bg-coptic-slateCard rounded-2xl p-5 border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3 pb-3 border-b border-gray-100 dark:border-gray-800">
+                            <span class="font-bold text-sm text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center space-x-2">
+                                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                                <span>English Source Input</span>
+                            </span>
+                            <button onclick="clearInput()" class="text-xs text-gray-400 hover:text-red-500 transition-colors flex items-center space-x-1">
+                                <i class="fa-solid fa-trash-can"></i>
+                                <span>Clear</span>
+                            </button>
+                        </div>
+                        <textarea id="english-input" rows="6" placeholder="Type English text here (e.g. 'God is love', 'Peace be with you', 'Holy', 'Father')..." class="w-full bg-transparent border-0 focus:ring-0 text-lg font-medium text-gray-800 dark:text-gray-100 placeholder-gray-400 resize-none outline-none custom-scrollbar" oninput="liveTranslate()"></textarea>
+                    </div>
+
+                    <!-- Quick Sample Phrases Bar -->
+                    <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800">
+                        <span class="text-xs text-gray-400 font-semibold block mb-2">Try sample phrases:</span>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="insertSample('God is love')" class="text-xs bg-gray-100 dark:bg-gray-800 hover:bg-coptic-gold/20 hover:text-coptic-gold text-gray-600 dark:text-gray-300 px-2.5 py-1 rounded-md transition-all">God is love</button>
+                            <button onclick="insertSample('Peace be with you')" class="text-xs bg-gray-100 dark:bg-gray-800 hover:bg-coptic-gold/20 hover:text-coptic-gold text-gray-600 dark:text-gray-300 px-2.5 py-1 rounded-md transition-all">Peace be with you</button>
+                            <button onclick="insertSample('Holy God')" class="text-xs bg-gray-100 dark:bg-gray-800 hover:bg-coptic-gold/20 hover:text-coptic-gold text-gray-600 dark:text-gray-300 px-2.5 py-1 rounded-md transition-all">Holy God</button>
+                            <button onclick="insertSample('Our Father who art in heaven')" class="text-xs bg-gray-100 dark:bg-gray-800 hover:bg-coptic-gold/20 hover:text-coptic-gold text-gray-600 dark:text-gray-300 px-2.5 py-1 rounded-md transition-all">Our Father</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Output Box (Coptic & Transliteration) -->
+                <div class="bg-coptic-papyrusCard dark:bg-coptic-slateCard/80 rounded-2xl p-5 border border-coptic-gold/40 shadow-sm flex flex-col justify-between relative">
+                    <div>
+                        <div class="flex justify-between items-center mb-3 pb-3 border-b border-coptic-gold/20">
+                            <span class="font-bold text-sm text-coptic-darkGold dark:text-coptic-gold uppercase tracking-wider flex items-center space-x-2">
+                                <span class="w-2 h-2 rounded-full bg-coptic-gold"></span>
+                                <span>Coptic Output & Transliteration</span>
+                            </span>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="speakCoptic()" title="Listen Pronunciation" class="p-2 rounded-lg bg-white dark:bg-gray-800 text-coptic-darkGold dark:text-coptic-gold hover:bg-coptic-gold hover:text-white transition-all shadow-sm">
+                                    <i class="fa-solid fa-volume-high"></i>
+                                </button>
+                                <button onclick="copyOutput()" title="Copy Coptic Text" class="p-2 rounded-lg bg-white dark:bg-gray-800 text-coptic-darkGold dark:text-coptic-gold hover:bg-coptic-gold hover:text-white transition-all shadow-sm">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Coptic Script Display -->
+                        <div class="min-h-[100px] mb-4">
+                            <div id="coptic-script-output" class="font-coptic text-3xl sm:text-4xl text-coptic-redAccent dark:text-coptic-gold leading-relaxed break-words">
+                                ⲟⲩϫⲁⲓ
+                            </div>
+                        </div>
+
+                        <!-- Transliteration Display -->
+                        <div class="bg-white/60 dark:bg-gray-900/50 p-3 rounded-xl border border-coptic-gold/20">
+                            <span class="text-xs font-bold text-gray-400 block uppercase mb-1">Pronunciation / Transliteration</span>
+                            <p id="coptic-latin-output" class="text-base font-semibold text-gray-700 dark:text-gray-200 italic">
+                                Udjai (Hello / Farewell)
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Output Stats / Match Level -->
+                    <div class="mt-4 pt-3 border-t border-coptic-gold/20 flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
+                        <span id="translation-mode-indicator" class="flex items-center space-x-1.5">
+                            <i class="fa-solid fa-circle-info text-coptic-gold"></i>
+                            <span>Exact Dictionary & Phonetic Match</span>
+                        </span>
+                        <span id="char-count">0 chars</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Breakdown & Word Map Grid -->
+            <div class="bg-white dark:bg-coptic-slateCard rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm">
+                <h3 class="font-title font-bold text-lg text-gray-800 dark:text-gray-100 mb-4 flex items-center space-x-2">
+                    <i class="fa-solid fa-cubes-stacked text-coptic-gold"></i>
+                    <span>Word-by-Word Breakdown</span>
+                </h3>
+                <div id="word-breakdown-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    <!-- Word cards populated dynamically -->
+                    <div class="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 text-center text-gray-400 text-xs py-6 col-span-full">
+                        Enter English text above to view itemized word mappings and lexical roots.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: RICH DICTIONARY -->
+        <section id="view-dictionary" class="tab-view hidden space-y-6">
+            <!-- Search & Filters Header -->
+            <div class="bg-white dark:bg-coptic-slateCard rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm space-y-4">
+                <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
+                    <div>
+                        <h2 class="font-title font-bold text-2xl text-coptic-darkGold dark:text-coptic-gold">Coptic Lexicon & Dictionary</h2>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Search over Bohairic words, liturgical terms, and everyday phrases.</p>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div class="relative min-w-[280px] sm:min-w-[360px]">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="dictionary-search" placeholder="Search English, Coptic or Latin..." oninput="filterDictionary()" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:outline-none focus:border-coptic-gold transition-all">
+                    </div>
+                </div>
+
+                <!-- Category Filters -->
+                <div class="flex flex-wrap gap-2 pt-2 border-t border-gray-100 dark:border-gray-800" id="category-filters">
+                    <button onclick="setCategoryFilter('all')" class="cat-filter-btn active px-3 py-1.5 rounded-lg text-xs font-semibold bg-coptic-gold text-white shadow-sm">All Words</button>
+                    <button onclick="setCategoryFilter('greetings')" class="cat-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-coptic-gold/20">Greetings</button>
+                    <button onclick="setCategoryFilter('religious')" class="cat-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-coptic-gold/20">Liturgical / Church</button>
+                    <button onclick="setCategoryFilter('nouns')" class="cat-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-coptic-gold/20">Nouns & People</button>
+                    <button onclick="setCategoryFilter('verbs')" class="cat-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-coptic-gold/20">Verbs & Actions</button>
+                    <button onclick="setCategoryFilter('numbers')" class="cat-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-coptic-gold/20">Numbers</button>
+                    <button onclick="setCategoryFilter('phrases')" class="cat-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-coptic-gold/20">Common Phrases</button>
+                </div>
+            </div>
+
+            <!-- Dictionary Grid Display -->
+            <div id="dictionary-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Populated via Javascript -->
+            </div>
+        </section>
+
+        <!-- TAB 3: COPTIC ALPHABET GUIDE -->
+        <section id="view-alphabet" class="tab-view hidden space-y-6">
+            <div class="bg-white dark:bg-coptic-slateCard rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                    <div>
+                        <h2 class="font-title font-bold text-2xl text-coptic-darkGold dark:text-coptic-gold">The Coptic Alphabet (ⲁⲗⲫⲁⲃⲏⲧⲟⲛ)</h2>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">32 letters total (24 Greek derivatives + 7 Demotic Egyptian symbols + 1 Soou abbreviation for 6).</p>
+                    </div>
+                    <div class="text-xs bg-coptic-gold/10 text-coptic-darkGold dark:text-coptic-gold font-bold px-3 py-2 rounded-xl border border-coptic-gold/30">
+                        Click any letter for audio & details
+                    </div>
+                </div>
+
+                <!-- Alphabet Grid -->
+                <div id="alphabet-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                    <!-- Cards populated via Javascript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: FLASHCARDS & QUIZ MODE -->
+        <section id="view-flashcards" class="tab-view hidden space-y-6">
+            <div class="max-w-2xl mx-auto space-y-6">
+                <!-- Mode Selector Bar -->
+                <div class="flex justify-center bg-white dark:bg-coptic-slateCard p-1.5 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
+                    <button onclick="setQuizMode('vocabulary')" id="quiz-btn-vocab" class="flex-1 py-2 px-4 rounded-lg font-bold text-sm bg-coptic-gold text-white shadow-sm transition-all">
+                        Vocabulary Practice
+                    </button>
+                    <button onclick="setQuizMode('alphabet')" id="quiz-btn-alpha" class="flex-1 py-2 px-4 rounded-lg font-bold text-sm text-gray-600 dark:text-gray-300 hover:text-coptic-gold transition-all">
+                        Alphabet Letters
+                    </button>
+                </div>
+
+                <!-- Interactive Flashcard Card -->
+                <div class="bg-white dark:bg-coptic-slateCard rounded-3xl p-8 border-2 border-coptic-gold/40 shadow-xl text-center relative overflow-hidden min-h-[340px] flex flex-col justify-between items-center">
+                    <!-- Progress Bar -->
+                    <div class="w-full flex justify-between items-center text-xs font-semibold text-gray-400 mb-2">
+                        <span id="quiz-progress-text">Card 1 of 10</span>
+                        <span id="quiz-score-text" class="text-coptic-gold font-bold">Score: 0</span>
+                    </div>
+
+                    <!-- Flashcard Front / Back Content -->
+                    <div id="flashcard-content" class="my-auto cursor-pointer transition-transform duration-300 transform hover:scale-105" onclick="flipCard()">
+                        <span id="card-category" class="text-xs font-bold uppercase tracking-widest text-coptic-gold bg-coptic-gold/10 px-3 py-1 rounded-full mb-4 inline-block">
+                            Greeting
+                        </span>
+                        
+                        <!-- Main Prompt Text -->
+                        <div id="card-main-text" class="font-coptic text-5xl sm:text-6xl text-coptic-redAccent dark:text-coptic-gold my-4">
+                            ⲟⲩϫⲁⲓ
+                        </div>
+
+                        <!-- Revealed Answer (Initially hidden or shown on click) -->
+                        <div id="card-answer" class="hidden space-y-1">
+                            <p id="card-translit" class="text-lg font-semibold italic text-gray-700 dark:text-gray-300">Udjai</p>
+                            <p id="card-english" class="text-xl font-bold text-coptic-darkGold dark:text-coptic-gold">Hello / Farewell</p>
+                        </div>
+
+                        <p id="card-hint" class="text-xs text-gray-400 mt-4 italic">
+                            <i class="fa-solid fa-hand-pointer mr-1"></i> Click card to reveal answer
+                        </p>
+                    </div>
+
+                    <!-- Control Buttons -->
+                    <div class="w-full flex justify-between items-center gap-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                        <button onclick="quizNext(false)" class="flex-1 py-3 bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 rounded-xl font-bold text-sm hover:bg-red-200 transition-all flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-xmark"></i>
+                            <span>Still Learning</span>
+                        </button>
+                        <button onclick="quizNext(true)" class="flex-1 py-3 bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 rounded-xl font-bold text-sm hover:bg-emerald-200 transition-all flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-check"></i>
+                            <span>I Know This</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="mt-auto border-t border-coptic-gold/20 bg-white/50 dark:bg-coptic-slateDark/50 py-6 text-center text-xs text-gray-500 dark:text-gray-400">
+        <p class="font-title text-coptic-darkGold dark:text-coptic-gold font-semibold">ⲁⲗⲏⲑⲱⲥ ⲁϥⲧⲱⲛϥ - Truly He is Risen</p>
+        <p class="mt-1">Dedicated to preserving Bohairic Coptic linguistic heritage.</p>
+    </footer>
+
+    <script>
+        /* ==========================================================================
+           1. DATA STRUCTURES: COPTIC ALPHABET & DICTIONARY LEXICON
+           ========================================================================== */
+
+        const COPTIC_ALPHABET = [
+            { char: 'Ⲁ ⲁ', name: 'Alpha', IPA: '/a/', sound: 'a as in father', latin: 'a' },
+            { char: 'Ⲃ ⲃ', name: 'Vida (Beta)', IPA: '/v/, /b/', sound: 'v before vowels, else b', latin: 'v/b' },
+            { char: 'Ⲟ ⲅ', name: 'Ghamma', IPA: '/ɡ/, /ŋ/, /x/', sound: 'g in go, n before k, or gh', latin: 'g' },
+            { char: 'Ⲇ ⲇ', name: 'Delta', IPA: '/ð/, /d/', sound: 'th in this, or d in names', latin: 'd/th' },
+            { char: 'Ⲉ ⲉ', name: 'Eii', IPA: '/e/', sound: 'e in pet', latin: 'e' },
+            { char: 'Ⲍ ⲍ', name: 'Zeta', IPA: '/z/', sound: 'z in zoo', latin: 'z' },
+            { char: 'Ⲏ ⲏ', name: 'Hita', IPA: '/ɛː/', sound: 'ee in meet', latin: 'ee' },
+            { char: 'Ⲑ ⲑ', name: 'Thita', IPA: '/θ/', sound: 'th in thin', latin: 'th' },
+            { char: 'Ⲓ ⲓ', name: 'Iota', IPA: '/i/', sound: 'i in machine or y in yes', latin: 'i/y' },
+            { char: 'Ⲕ ⲕ', name: 'Kapa', IPA: '/k/', sound: 'k in king', latin: 'k' },
+            { char: 'Ⲗ ⲗ', name: 'Lavla', IPA: '/l/', sound: 'l in lord', latin: 'l' },
+            { char: 'Ⲙ ⲙ', name: 'Mey', IPA: '/m/', sound: 'm in man', latin: 'm' },
+            { char: 'Ⲛ ⲛ', name: 'Ney', IPA: '/n/', sound: 'n in net', latin: 'n' },
+            { char: 'Ⲝ ⲝ', name: 'Ksi', IPA: '/ks/', sound: 'x in box', latin: 'x' },
+            { char: 'Ⲟ ⲟ', name: 'Omicron', IPA: '/o/', sound: 'o in not', latin: 'o' },
+            { char: 'Ⲡ ⲡ', name: 'Pi', IPA: '/p/', sound: 'p in pet', latin: 'p' },
+            { char: 'Ⲣ ⲣ', name: 'Ro', IPA: '/r/', sound: 'r in rolled r', latin: 'r' },
+            { char: 'Ⲥ ⲥ', name: 'Sima', IPA: '/s/', sound: 's in sun', latin: 's' },
+            { char: 'Ⲧ ⲧ', name: 'Tav', IPA: '/t/', sound: 't in top', latin: 't' },
+            { char: 'Ⲩ ⲩ', name: 'Epsilon', IPA: '/i/, /v/, /u/', sound: 'u, v after a/e, or oo', latin: 'u/v' },
+            { char: 'Ⲫ ⲫ', name: 'Phi', IPA: '/f/', sound: 'f in far', latin: 'f' },
+            { char: 'Ⲭ ⲭ', name: 'Khi', IPA: '/k/, /x/, /ç/', sound: 'k or ch in Bach', latin: 'kh' },
+            { char: 'Ⲯ ⲯ', name: 'Psi', IPA: '/ps/', sound: 'ps in lips', latin: 'ps' },
+            { char: 'Ⲱ ⲱ', name: 'Omega', IPA: '/oː/', sound: 'o in raw', latin: 'o' },
+            { char: 'Ϣ ϣ', name: 'Shai', IPA: '/ʃ/', sound: 'sh in shoe (Demotic)', latin: 'sh' },
+            { char: 'Ϥ ϥ', name: 'Fai', IPA: '/f/', sound: 'f in far (Demotic)', latin: 'f' },
+            { char: 'Ϧ ϧ', name: 'Khai', IPA: '/x/', sound: 'kh/ch throat sound (Demotic)', latin: 'kh' },
+            { char: 'Ϩ ϩ', name: 'Hori', IPA: '/h/', sound: 'h in house (Demotic)', latin: 'h' },
+            { char: 'Ϫ ϫ', name: 'Janjia', IPA: '/dʒ/, /g/', sound: 'j in joy (Demotic)', latin: 'j' },
+            { char: 'Ϭ ϭ', name: 'Shima', IPA: '/tʃ/', sound: 'ch in church (Demotic)', latin: 'ch' },
+            { char: 'ϯ ϯ', name: 'Ti', IPA: '/ti/', sound: 'ti in tea (Demotic)', latin: 'ti' }
+        ];
+
+        const DICTIONARY = [
+            // Greetings & Common
+            { english: "hello", coptic: "ⲟⲩϫⲁⲓ", translit: "Udjai", category: "greetings" },
+            { english: "peace", coptic: "ϩⲓⲣⲏⲛⲏ", translit: "Hirini", category: "greetings" },
+            { english: "peace be with you", coptic: "ⲓⲣⲏⲛⲏ ⲡⲁⲥⲓ", translit: "Irene pasi", category: "greetings" },
+            { english: "welcome", coptic: "ⲁⲙⲱⲓⲛⲓ ϧⲉⲛ ⲟⲩϩⲓⲣⲏⲛⲏ", translit: "Amoini khen ou-hirini", category: "greetings" },
+            { english: "goodbye", coptic: "ⲟⲩϫⲁⲓ ϧⲉⲛ ⲡϭⲟⲓⲥ", translit: "Udjai khen Pchois", category: "greetings" },
+            { english: "thank you", coptic: "ϣⲉⲡϩⲙⲟⲧ", translit: "Shephot", category: "greetings" },
+            { english: "yes", coptic: "ⲥⲉ", translit: "Se", category: "phrases" },
+            { english: "no", coptic: "ⲙⲙⲟⲛ", translit: "Mmon", category: "phrases" },
+
+            // Religious & Liturgical
+            { english: "god", coptic: "ⲫⲛⲟⲩϯ", translit: "Phnouti", category: "religious" },
+            { english: "lord", coptic: "ⲡϭⲟⲓⲥ", translit: "Pchois", category: "religious" },
+            { english: "jesus christ", coptic: "ⲓⲏⲥⲟⲩⲥ ⲡⲭⲣⲓⲥⲧⲟⲥ", translit: "Iesous Pkhristos", category: "religious" },
+            { english: "holy", coptic: "ⲁⲅⲓⲟⲥ", translit: "Agios", category: "religious" },
+            { english: "holy god", coptic: "ⲁⲅⲓⲟⲥ ⲟ ⲑⲉⲟⲥ", translit: "Agios O Theos", category: "religious" },
+            { english: "father", coptic: "ⲓⲱⲧ", translit: "Iot", category: "religious" },
+            { english: "our father", coptic: "ⲡⲉⲛⲓⲱⲧ", translit: "Peniot", category: "religious" },
+            { english: "our father who art in heaven", coptic: "ⲡⲉⲛⲓⲱⲧ ⲉⲧϧⲉⲛ ⲛⲓⲫⲏⲟⲩ any", translit: "Peniot etkhen ni-pheoui", category: "religious" },
+            { english: "spirit", coptic: "ⲡⲛⲉⲩⲙⲁ", translit: "Pneuma", category: "religious" },
+            { english: "holy spirit", coptic: "ⲡⲓⲡⲛⲉⲩⲙⲁ ⲉⲑⲟⲩⲁⲡ", translit: "Pi-pneuma ethowab", category: "religious" },
+            { english: "church", coptic: "ⲉⲕⲕⲗⲏⲥⲓⲁ", translit: "Ekklesia", category: "religious" },
+            { english: "amen", coptic: "ⲁⲙⲏⲛ", translit: "Amen", category: "religious" },
+            { english: "hallelujah", coptic: "ⲁⲗⲗⲏⲗⲟⲩⲓⲁ", translit: "Alleluia", category: "religious" },
+            { english: "love", coptic: "ⲁⲅⲁⲡⲏ", translit: "Agape", category: "religious" },
+            { english: "god is love", coptic: "ⲫⲛⲟⲩϯ ⲟⲩⲁⲅⲁⲡⲏ ⲡⲉ", translit: "Phnouti ou-agape pe", category: "phrases" },
+
+            // Nouns & People
+            { english: "man", coptic: "ⲣⲱⲙⲓ", translit: "Romi", category: "nouns" },
+            { english: "woman", coptic: "ⲥϩⲓⲙⲓ", translit: "Sgimi", category: "nouns" },
+            { english: "mother", coptic: "ⲙⲁ any", translit: "Mav", category: "nouns" },
+            { english: "brother", coptic: "ⲥⲟⲛ", translit: "Son", category: "nouns" },
+            { english: "sister", coptic: "ⲥⲱⲛⲓ", translit: "Soni", category: "nouns" },
+            { english: "son", coptic: "ϣⲏⲣⲓ", translit: "Sheri", category: "nouns" },
+            { english: "king", coptic: "ⲟⲩ any", translit: "Ouro", category: "nouns" },
+            { english: "heaven", coptic: "ⲫⲉ", translit: "Phe", category: "nouns" },
+            { english: "earth", coptic: "ⲕⲁϩ", translit: "Kah", category: "nouns" },
+            { english: "light", coptic: "ⲟⲩⲱⲓⲛⲓ", translit: "Owoini", category: "nouns" },
+            { english: "water", coptic: "ⲙⲱⲟⲩ", translit: "Mowou", category: "nouns" },
+            { english: "bread", coptic: "ⲱⲓⲕ", translit: "Oik", category: "nouns" },
+
+            // Verbs
+            { english: "pray", coptic: "ⲧⲱⲃϩ", translit: "Tobh", category: "verbs" },
+            { english: "sing", coptic: "ϩⲱⲥ", translit: "Hos", category: "verbs" },
+            { english: "walk", coptic: "ⲙⲟϣⲓ", translit: "Moshi", category: "verbs" },
+            { english: "know", coptic: "ⲉⲙⲓ", translit: "Emi", category: "verbs" },
+            { english: "come", coptic: "ⲁⲙⲟⲩ", translit: "Amou", category: "verbs" },
+            { english: "give", coptic: "ϯ", translit: "Ti", category: "verbs" },
+
+            // Numbers
+            { english: "one", coptic: "ⲟⲩⲁⲓ", translit: "Ouai", category: "numbers" },
+            { english: "two", coptic: "ⲥⲛⲁ any", translit: "Snau", category: "numbers" },
+            { english: "three", coptic: "ϣⲟⲙⲧ", translit: "Shomt", category: "numbers" },
+            { english: "four", coptic: "ϥⲧⲟⲟⲩ", translit: "Ftoou", category: "numbers" },
+            { english: "five", coptic: "ϯⲟⲩ", translit: "Tiou", category: "numbers" },
+            { english: "six", coptic: "ⲥⲟⲟⲩ", translit: "Soou", category: "numbers" },
+            { english: "seven", coptic: "ϣⲁϣϥ", translit: "Shashf", category: "numbers" },
+            { english: "eight", coptic: "ϣⲙⲏⲛ", translit: "Shmen", category: "numbers" },
+            { english: "nine", coptic: "psiⲧ", translit: "Psit", category: "numbers" },
+            { english: "ten", coptic: "ⲙⲏⲧ", translit: "Met", category: "numbers" }
+        ];
+
+        // English-to-Coptic Character Mapping fallback for transliteration engine
+        const CHAR_MAP = {
+            'a': 'ⲁ', 'b': 'ⲃ', 'v': 'ⲃ', 'g': 'ⲅ', 'd': 'ⲇ', 'e': 'ⲉ', 'z': 'ⲍ', 
+            'ee': 'ⲏ', 'th': 'ⲑ', 'i': 'ⲓ', 'y': 'ⲓ', 'k': 'ⲕ', 'l': 'ⲗ', 'm': 'ⲙ', 
+            'n': 'ⲛ', 'x': 'ⲝ', 'o': 'ⲟ', 'p': 'ⲡ', 'r': 'ⲣ', 's': 'ⲥ', 't': 'ⲧ', 
+            'u': 'ⲩ', 'f': 'ⲫ', 'ph': 'ⲫ', 'kh': 'ϧ', 'ch': 'ϭ', 'ps': 'ⲯ', 'w': 'ⲱ', 
+            'sh': 'ϣ', 'h': 'ϩ', 'j': 'ϫ'
+        };
+
+        /* ==========================================================================
+           2. STATE & INITIALIZATION
+           ========================================================================== */
+
+        let activeTab = 'translator';
+        let currentDictionaryFilter = 'all';
+        let quizList = [];
+        let quizIndex = 0;
+        let quizScore = 0;
+        let quizIsFlipped = false;
+        let quizMode = 'vocabulary'; // 'vocabulary' or 'alphabet'
+
+        window.onload = function() {
+            renderDictionary();
+            renderAlphabet();
+            initQuiz();
+            liveTranslate();
+        };
+
+        /* ==========================================================================
+           3. TRANSLATOR & ENGINE LOGIC
+           ========================================================================== */
+
+        function liveTranslate() {
+            const input = document.getElementById('english-input').value.trim();
+            const charCount = document.getElementById('char-count');
+            const copticOut = document.getElementById('coptic-script-output');
+            const latinOut = document.getElementById('coptic-latin-output');
+            const breakdownContainer = document.getElementById('word-breakdown-container');
+            const modeIndicator = document.getElementById('translation-mode-indicator');
+
+            charCount.textContent = `${input.length} chars`;
+
+            if (!input) {
+                copticOut.textContent = "ⲟⲩϫⲁⲓ";
+                latinOut.textContent = "Udjai (Hello / Farewell)";
+                breakdownContainer.innerHTML = `
+                    <div class="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 text-center text-gray-400 text-xs py-6 col-span-full">
+                        Enter English text above to view itemized word mappings and lexical roots.
+                    </div>`;
+                modeIndicator.innerHTML = `<i class="fa-solid fa-circle-info text-coptic-gold"></i><span>Exact Dictionary & Phonetic Match</span>`;
+                return;
+            }
+
+            // Clean input string
+            const cleanedInput = input.toLowerCase().replace(/[^\w\s]/gi, '');
+            
+            // Check direct exact match in dictionary first
+            const exactMatch = DICTIONARY.find(d => d.english.toLowerCase() === cleanedInput);
+
+            if (exactMatch) {
+                copticOut.textContent = exactMatch.coptic;
+                latinOut.textContent = exactMatch.translit;
+                modeIndicator.innerHTML = `<i class="fa-solid fa-check-double text-emerald-500"></i><span class="text-emerald-600 dark:text-emerald-400 font-semibold">Exact Dictionary Match Found</span>`;
+                
+                breakdownContainer.innerHTML = `
+                    <div class="p-4 bg-coptic-gold/10 border border-coptic-gold/30 rounded-xl text-center col-span-full">
+                        <span class="text-xs font-bold text-coptic-darkGold dark:text-coptic-gold uppercase tracking-wider block mb-1">Phrasal Match</span>
+                        <p class="font-coptic text-2xl text-coptic-redAccent dark:text-coptic-gold">${exactMatch.coptic}</p>
+                        <p class="text-sm font-semibold text-gray-700 dark:text-gray-200 italic mt-1">${exactMatch.translit} = "${exactMatch.english}"</p>
+                    </div>`;
+                return;
+            }
+
+            // Word-by-word Translation / Transliteration Fallback
+            const words = input.split(/\s+/);
+            let copticWords = [];
+            let latinWords = [];
+            let breakdownHTML = '';
+            let hasPhoneticFallback = false;
+
+            words.forEach(word => {
+                const cleanWord = word.toLowerCase().replace(/[^\w]/g, '');
+                if (!cleanWord) return;
+
+                // Match against dictionary
+                const dictEntry = DICTIONARY.find(d => d.english.toLowerCase() === cleanWord);
+
+                if (dictEntry) {
+                    copticWords.push(dictEntry.coptic);
+                    latinWords.push(dictEntry.translit);
+                    breakdownHTML += `
+                        <div class="p-3 bg-white dark:bg-gray-800 rounded-xl border border-coptic-gold/40 shadow-sm">
+                            <div class="flex justify-between items-center text-xs text-gray-400 mb-1">
+                                <span class="font-bold text-gray-600 dark:text-gray-300">${word}</span>
+                                <span class="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-semibold">Dict</span>
+                            </div>
+                            <p class="font-coptic text-xl text-coptic-redAccent dark:text-coptic-gold font-bold">${dictEntry.coptic}</p>
+                            <p class="text-xs text-gray-500 italic mt-0.5">${dictEntry.translit}</p>
+                        </div>`;
+                } else {
+                    hasPhoneticFallback = true;
+                    // Character Transliteration Engine
+                    const phonetics = transliterateEnglishToCoptic(cleanWord);
+                    copticWords.push(phonetics.coptic);
+                    latinWords.push(phonetics.latin);
+                    breakdownHTML += `
+                        <div class="p-3 bg-gray-50 dark:bg-gray-800/60 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                            <div class="flex justify-between items-center text-xs text-gray-400 mb-1">
+                                <span class="font-bold text-gray-600 dark:text-gray-300">${word}</span>
+                                <span class="text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-semibold">Phonetic</span>
+                            </div>
+                            <p class="font-coptic text-xl text-gray-800 dark:text-gray-200 font-bold">${phonetics.coptic}</p>
+                            <p class="text-xs text-gray-500 italic mt-0.5">${phonetics.latin}</p>
+                        </div>`;
+                }
+            });
+
+            copticOut.textContent = copticWords.join(' ');
+            latinOut.textContent = latinWords.join(' ');
+            breakdownContainer.innerHTML = breakdownHTML;
+
+            if (hasPhoneticFallback) {
+                modeIndicator.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles text-coptic-gold"></i><span>Combined Dictionary & Phonetic Transliteration</span>`;
+            } else {
+                modeIndicator.innerHTML = `<i class="fa-solid fa-check text-emerald-500"></i><span>All words matched from Bohairic Dictionary</span>`;
+            }
+        }
+
+        // Transliterate English phonetics to Coptic characters
+        function transliterateEnglishToCoptic(str) {
+            let i = 0;
+            let copticRes = '';
+            let latinRes = str;
+
+            while (i < str.length) {
+                // Check 2-letter digraphs first
+                let dual = str.substr(i, 2);
+                if (CHAR_MAP[dual]) {
+                    copticRes += CHAR_MAP[dual];
+                    i += 2;
+                    continue;
+                }
+                // Single letter lookup
+                let single = str[i];
+                if (CHAR_MAP[single]) {
+                    copticRes += CHAR_MAP[single];
+                } else {
+                    copticRes += single; // keep punctuation or unmapped
+                }
+                i++;
+            }
+            return { coptic: copticRes, latin: latinRes };
+        }
+
+        function insertSample(text) {
+            document.getElementById('english-input').value = text;
+            liveTranslate();
+        }
+
+        function clearInput() {
+            document.getElementById('english-input').value = '';
+            liveTranslate();
+        }
+
+        /* ==========================================================================
+           4. AUDIO SPEECH SYNTHESIS & UTILITIES
+           ========================================================================== */
+
+        function speakCoptic(customText = null) {
+            const textToSpeak = customText || document.getElementById('coptic-latin-output').textContent;
+            if (!textToSpeak) return;
+
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Stop ongoing speech
+                const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                utterance.rate = 0.85; // Slower for clarity
+                utterance.pitch = 1.0;
+                window.speechSynthesis.speak(utterance);
+                showToast("Playing pronunciation audio", "fa-volume-high");
+            } else {
+                showToast("Speech synthesis not supported in this browser.", "fa-triangle-exclamation");
+            }
+        }
+
+        function copyOutput() {
+            const text = document.getElementById('coptic-script-output').textContent;
+            const translit = document.getElementById('coptic-latin-output').textContent;
+            const fullText = `${text} (${translit})`;
+
+            // Copy utilizing fallback execution
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = fullText;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+
+            showToast("Copied Coptic text to clipboard!");
+        }
+
+        function showToast(message, iconClass = "fa-circle-check") {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toast-message');
+            const iconEl = document.getElementById('toast-icon');
+
+            msgEl.textContent = message;
+            iconEl.className = `fa-solid ${iconClass} text-lg`;
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+
+        /* ==========================================================================
+           5. DICTIONARY RENDER & FILTERING
+           ========================================================================== */
+
+        function renderDictionary() {
+            const grid = document.getElementById('dictionary-grid');
+            const query = document.getElementById('dictionary-search').value.toLowerCase().trim();
+
+            const filtered = DICTIONARY.filter(item => {
+                const matchesCat = currentDictionaryFilter === 'all' || item.category === currentDictionaryFilter;
+                const matchesSearch = item.english.toLowerCase().includes(query) ||
+                                      item.coptic.toLowerCase().includes(query) ||
+                                      item.translit.toLowerCase().includes(query);
+                return matchesCat && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-gray-400">
+                        <i class="fa-solid fa-book-open text-4xl mb-3 text-coptic-gold/50"></i>
+                        <p class="text-base font-semibold">No words found matching your search criteria.</p>
+                        <p class="text-xs">Try searching for other phrases like "peace", "father", or "god".</p>
+                    </div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(item => `
+                <div class="bg-white dark:bg-coptic-slateCard rounded-2xl p-5 border border-gray-200 dark:border-gray-800 shadow-sm hover:border-coptic-gold/50 transition-all flex flex-col justify-between group">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-coptic-gold/10 text-coptic-darkGold dark:text-coptic-gold border border-coptic-gold/20">
+                                ${item.category}
+                            </span>
+                            <button onclick="speakCoptic('${item.translit}')" class="text-gray-400 hover:text-coptic-gold p-1 transition-colors">
+                                <i class="fa-solid fa-volume-high text-xs"></i>
+                            </button>
+                        </div>
+                        <h4 class="font-coptic text-3xl font-bold text-coptic-redAccent dark:text-coptic-gold my-1 group-hover:scale-105 transition-transform origin-left">
+                            ${item.coptic}
+                        </h4>
+                        <p class="text-sm font-semibold italic text-gray-700 dark:text-gray-200">${item.translit}</p>
+                        <p class="text-base font-bold text-gray-900 dark:text-white mt-1">${item.english}</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800/60 flex justify-end">
+                        <button onclick="insertSample('${item.english}'); switchTab('translator');" class="text-xs text-coptic-gold font-bold hover:underline flex items-center space-x-1">
+                            <span>Use in Translator</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterDictionary() {
+            renderDictionary();
+        }
+
+        function setCategoryFilter(cat) {
+            currentDictionaryFilter = cat;
+            document.querySelectorAll('.cat-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-coptic-gold', 'text-white', 'shadow-sm');
+                btn.classList.add('bg-gray-100', 'dark:bg-gray-800', 'text-gray-600', 'dark:text-gray-300');
+            });
+
+            event.target.classList.remove('bg-gray-100', 'dark:bg-gray-800', 'text-gray-600', 'dark:text-gray-300');
+            event.target.classList.add('bg-coptic-gold', 'text-white', 'shadow-sm');
+
+            renderDictionary();
+        }
+
+        /* ==========================================================================
+           6. ALPHABET REFERENCE GUIDE
+           ========================================================================== */
+
+        function renderAlphabet() {
+            const grid = document.getElementById('alphabet-grid');
+            grid.innerHTML = COPTIC_ALPHABET.map(item => `
+                <div onclick="speakCoptic('${item.name}, pronounced ${item.sound}')" class="bg-white dark:bg-coptic-slateCard rounded-2xl p-4 border border-gray-200 dark:border-gray-800 shadow-sm hover:border-coptic-gold/60 hover:shadow-md transition-all cursor-pointer text-center group">
+                    <div class="font-coptic text-4xl text-coptic-redAccent dark:text-coptic-gold font-bold mb-2 group-hover:scale-110 transition-transform">
+                        ${item.char}
+                    </div>
+                    <h4 class="font-bold text-sm text-gray-800 dark:text-gray-100">${item.name}</h4>
+                    <span class="text-xs text-coptic-darkGold dark:text-coptic-gold font-semibold font-mono">${item.IPA}</span>
+                    <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">${item.sound}</p>
+                </div>
+            `).join('');
+        }
+
+        /* ==========================================================================
+           7. FLASHCARD & QUIZ SYSTEM
+           ========================================================================== */
+
+        function initQuiz() {
+            if (quizMode === 'vocabulary') {
+                quizList = [...DICTIONARY].sort(() => Math.random() - 0.5);
+            } else {
+                quizList = COPTIC_ALPHABET.map(a => ({
+                    coptic: a.char,
+                    translit: `${a.name} (${a.IPA})`,
+                    english: a.sound,
+                    category: 'Alphabet'
+                })).sort(() => Math.random() - 0.5);
+            }
+            quizIndex = 0;
+            quizScore = 0;
+            showCard();
+        }
+
+        function setQuizMode(mode) {
+            quizMode = mode;
+            const btnVocab = document.getElementById('quiz-btn-vocab');
+            const btnAlpha = document.getElementById('quiz-btn-alpha');
+
+            if (mode === 'vocabulary') {
+                btnVocab.className = "flex-1 py-2 px-4 rounded-lg font-bold text-sm bg-coptic-gold text-white shadow-sm transition-all";
+                btnAlpha.className = "flex-1 py-2 px-4 rounded-lg font-bold text-sm text-gray-600 dark:text-gray-300 hover:text-coptic-gold transition-all";
+            } else {
+                btnAlpha.className = "flex-1 py-2 px-4 rounded-lg font-bold text-sm bg-coptic-gold text-white shadow-sm transition-all";
+                btnVocab.className = "flex-1 py-2 px-4 rounded-lg font-bold text-sm text-gray-600 dark:text-gray-300 hover:text-coptic-gold transition-all";
+            }
+
+            initQuiz();
+        }
+
+        function showCard() {
+            if (quizList.length === 0) return;
+
+            const item = quizList[quizIndex];
+            quizIsFlipped = false;
+
+            document.getElementById('quiz-progress-text').textContent = `Card ${quizIndex + 1} of ${quizList.length}`;
+            document.getElementById('quiz-score-text').textContent = `Score: ${quizScore}`;
+
+            document.getElementById('card-category').textContent = item.category || 'Vocabulary';
+            document.getElementById('card-main-text').textContent = item.coptic;
+            document.getElementById('card-translit').textContent = item.translit;
+            document.getElementById('card-english').textContent = item.english;
+
+            document.getElementById('card-answer').classList.add('hidden');
+            document.getElementById('card-hint').classList.remove('hidden');
+        }
+
+        function flipCard() {
+            quizIsFlipped = !quizIsFlipped;
+            const cardAnswer = document.getElementById('card-answer');
+            const cardHint = document.getElementById('card-hint');
+
+            if (quizIsFlipped) {
+                cardAnswer.classList.remove('hidden');
+                cardHint.classList.add('hidden');
+            } else {
+                cardAnswer.classList.add('hidden');
+                cardHint.classList.remove('hidden');
+            }
+        }
+
+        function quizNext(isCorrect) {
+            if (isCorrect) {
+                quizScore += 10;
+            }
+
+            quizIndex++;
+            if (quizIndex >= quizList.length) {
+                quizIndex = 0; // Restart loop or reshuffle
+                quizList.sort(() => Math.random() - 0.5);
+                showToast(`Quiz completed! Final Score: ${quizScore}`, "fa-trophy");
+            }
+
+            showCard();
+        }
+
+        /* ==========================================================================
+           8. NAVIGATION & NAVIGATION THEME SWITCHING
+           ========================================================================== */
+
+        function switchTab(tabId) {
+            activeTab = tabId;
+
+            // Hide all tabs
+            document.querySelectorAll('.tab-view').forEach(view => view.classList.add('hidden'));
+            
+            // Show target view
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+
+            // Update tab button styles
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-coptic-gold";
+            });
+
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            if (activeBtn) {
+                activeBtn.className = "tab-btn active px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center space-x-2 bg-coptic-gold text-white shadow-sm";
+            }
+        }
+
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                icon.className = "fa-solid fa-moon text-lg";
+            } else {
+                html.classList.add('dark');
+                icon.className = "fa-solid fa-sun text-lg text-amber-400";
+            }
+        }
+    </script>
+</body>
+</html>
